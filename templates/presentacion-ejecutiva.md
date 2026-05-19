@@ -47,3 +47,7 @@ fecha: {{fecha}}
 
 ## Equipo requerido
 {{equipo_requerido}}
+
+## Diagramas
+
+{{mermaid_diagrams}}

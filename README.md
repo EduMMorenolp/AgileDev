@@ -1,11 +1,13 @@
-# AgileDev Suite v1.3.0
+# AgileDev Suite v2.1.0
 
 Sistema CASE para la gestion integrada de preparacion de proyectos de software basado en Scrum, Ingenieria de Requerimientos y Control de Configuracion.
 
 ## Arquitectura de Agentes
 
 ### pm-navigator (Primary - Tab)
-Orquestador principal. Realiza **entrevista detallada** que recolecta todas las variables de los templates (45+ preguntas mapeadas 1:1), construye un JSON plano, genera un slug del nombre del proyecto y coordina a los subagentes segun el tipo de proyecto.
+Orquestador principal. Realiza **~12 preguntas agrupadas** en lenguaje natural (no 94 individuales).
+Lee `proyectos/_defaults.json` para precargar valores repetitivos entre proyectos.
+Construye JSON plano con ~120 variables y coordina subagentes segun tipo de proyecto.
 
 **Permisos:** read + task (sin edit ni bash)
 
@@ -15,8 +17,9 @@ Orquestador principal. Realiza **entrevista detallada** que recolecta todas las 
 |--------|---------|----------|
 | `@proyecto-nuevo` | Valida prioridades, completa MVP/roadmap, devuelve JSON plano | read + edit |
 | `@proyecto-existente` | Lee docs actuales, detecta gaps, recomienda crear o actualizar | read + edit |
-| `@docs-creator` | Lee templates, reemplaza `{{variable}}` 1:1 con JSON plano, escribe en `proyectos/[slug]/docs/` | read + edit |
+| `@docs-creator` | Lee templates, reemplaza `{{variable}}` 1:1 con JSON plano, genera diagramas Mermaid, deriva task cards por rol | read + edit |
 | `@docs-updater` | Modifica docs existentes usando SOLO `edit` por anclas Markdown. Nunca `write`. | read + edit |
+| `@docs-validator` | Revisa ortografia, consistencia cruzada, TODOs y secciones vacias. Corrige errores simples. | read + edit |
 | `@agent-logs` | Registra cada accion en `changelog.md` del proyecto | read + edit |
 
 ## Changelog
@@ -40,6 +43,11 @@ Proyectos/AgileDev/
 │   ├── product-vision.md
 │   ├── usabilidad.md
 │   ├── presentacion-ejecutiva.md
+│   ├── task-cards.md
+│   ├── roadmap-sprints.md
+│   ├── acta-reunion.md
+│   ├── retrospectiva.md
+│   ├── glosario.md
 │   ├── requerimientos/
 │   │   ├── funcionales.md
 │   │   └── no-funcionales.md
@@ -53,6 +61,11 @@ Proyectos/AgileDev/
             ├── product-vision.md
             ├── usabilidad.md
             ├── presentacion-ejecutiva.md
+            ├── task-cards.md
+            ├── roadmapsprints.md
+            ├── acta-reunion.md
+            ├── retrospectiva.md
+            ├── glosario.md
             ├── requerimientos/
             │   ├── funcionales.md
             │   └── no-funcionales.md
@@ -65,10 +78,13 @@ Proyectos/AgileDev/
 
 1. Abre opencode y presiona **Tab** hasta `pm-navigator`
 2. Di "hola" o "tengo un proyecto"
-3. El navigador realiza la entrevista completa (11 secciones, ~70 preguntas)
-4. Al completar, construye un **JSON plano** con todas las variables
-5. Genera un **slug** del nombre del proyecto (ej: "Mi Proyecto" → "mi-proyecto")
-6. Flujo segun tipo:
+3. El navigador lee `proyectos/_defaults.json` si existe: "Encontre valores guardados para [secciones]. Los uso?"
+   - "todo" → precarga todo, salta las secciones con defaults
+   - "[seccion A, seccion C]" → precarga solo esas
+   - "no" → ignora defaults, pregunta todo
+4. Realiza ~12 preguntas abiertas (en lenguaje natural). De cada respuesta extrae multiples variables.
+5. Construye JSON plano con ~120 variables
+6. Genera slug del nombre del proyecto
 
    **NUEVO:**
    - Invoca `@proyecto-nuevo` para validar prioridades y completar MVP/roadmap
@@ -115,10 +131,11 @@ directamente `{{variable}}` → valor.
 ### Proyecto Nuevo
 ```
 pm-navigator (entrevista)
-  → JSON plano con 45+ variables
+  → JSON plano con 70+ variables
   → @proyecto-nuevo (valida prioridades, sugiere MVP/roadmap)
   → fusion de JSONs
-  → @docs-creator (crea 5 archivos desde templates)
+  → @docs-creator (crea 12 archivos desde templates, genera diagramas Mermaid, deriva task cards)
+  → @docs-validator (revisa ortografia, consistencia, TODOs)
   → @agent-logs (registra en changelog.md)
 ```
 
@@ -135,7 +152,7 @@ pm-navigator (entrevista)
 
 ## Variables de templates
 
-Las 7 plantillas usan ~70 marcadores `{{variable}}`. El navigator pregunta
+Las 12 plantillas usan ~80 marcadores `{{variable}}`. El navigator pregunta
 por cada una de forma explicita durante la entrevista. Las variables se
 agrupan en 11 secciones:
 
@@ -148,10 +165,76 @@ agrupan en 11 secciones:
 | Epicas | epica_1/2/3_nombre, _desc, _prioridad, _deps, mvp_descripcion, roadmap | funcionales.md |
 | Historias | historia_1/2/3, sp_1/2/3, ca_1/2/3 | backlog.md |
 | Riesgos | riesgo_mercado, riesgo_legal, riesgo_adopcion, riesgo_dependencia | presentacion-ejecutiva.md |
-| Sprint | sprint_numero, duracion, goal, equipo, fechas, tareas, responsables | sprint-plan.md |
+| Sprint (x6) | sprint_count, sprint_1/2/3/4/5/6_goal, _duracion, _inicio, _fin | sprint-plan.md, task-cards.md, roadmap-sprints.md |
 | Usabilidad | perfil_usuarios_detalle, necesidades_accesibilidad, nivel_usabilidad, dispositivos_objetivo, idiomas | usabilidad.md |
 | Valor negocio | pitch_ejecutivo, justificacion_negocio, roi, competidores, foda, peor_escenario, cronograma_hitos, equipo_requerido | presentacion-ejecutiva.md |
 | Metricas | kpi_principales, kpi_tecnicos, kpi_negocio | product-vision.md, presentacion-ejecutiva.md |
+
+### Templates adicionales (sin preguntas en navigator)
+
+Estos templates se crean con datos generados o vacios, y se completan durante la ejecucion del proyecto:
+
+| Template | Uso | Variables |
+|----------|-----|-----------|
+| task-cards.md | Checklist por rol para cada sprint | tl_tareas, dev_tareas, qa_tareas, po_tareas (derivadas por docs-creator) |
+| acta-reunion.md | Documentar decisiones del proyecto | acta_asistentes, acta_proposito, acta_temas, acta_decisiones, acta_acciones |
+| retrospectiva.md | Mejora continua post-sprint | retro_bien, retro_mejorar, retro_acciones, retro_velocidad |
+| glosario.md | Definir terminos del dominio | glosario_termino_1/5, glosario_definicion_1/5 |
+
+## Diagramas Mermaid.js
+
+Los templates incluyen un marcador `{{mermaid_diagrams}}` que `@docs-creator` reemplaza con diagramas Mermaid.js generados automaticamente:
+- **Gantt**: cronograma de sprints en presentacion-ejecutiva.md y roadmap-sprints.md
+- **QuadrantChart**: matriz poder-interes de stakeholders
+- **Flowchart**: dependencias entre epicas en funcionales.md
+- **Timeline**: roadmaps en product-vision.md
+
+Los diagramas se renderizan automaticamente en GitHub, GitLab y otros visores Markdown.
+
+## Multi-sprint
+
+El navigador soporta hasta 6 sprints por proyecto:
+- `sprint_count`: total de sprints planificados
+- `sprint_1_*`: variables detalladas (goal, duracion, fechas, tareas, responsables, equipo)
+- `sprint_2/3/4/5/6_*`: goal, duracion, inicio y fin para sprints adicionales
+- `roadmap-sprints.md`: tabla resumen de todos los sprints con diagrama Gantt
+
+## docs-validator
+
+El agente `@docs-validator` revisa automaticamente:
+- **Ortografia**: signos de apertura, tildes, mayusculas
+- **Consistencia cruzada**: epicas en funcionales.md coinciden con backlog.md
+- **TODO scan**: detecta `<!-- TODO -->` residuales
+- **Secciones vacias**: contenido minimo por seccion
+- **Terminologia**: mismo termino usado en todos los docs
+
+Puede corregir errores simples automaticamente (ortografia, TODOs).
+Para inconsistencias graves (epics que no coinciden), solo reporta.
+
+## Task Cards (generacion automatica)
+
+`@docs-creator` deriva las task cards por rol desde los datos existentes del sprint:
+- `tl_tareas`: derivadas de las tareas asignadas al Tech Lead
+- `dev_tareas`: tareas asignadas a desarrolladores
+- `qa_tareas`: tareas de testing
+- `po_tareas`: tareas del Product Owner
+
+No requiere preguntas adicionales en la entrevista.
+
+## Defaults entre proyectos
+
+Para evitar repetir datos comunes (stakeholders, equipo, tecnologia), crea `proyectos/_defaults.json`:
+
+```json
+{
+  "stakeholders_lista": "Gerente de Operaciones, Clientes, Equipo deposito",
+  "equipo": "1 Tech Lead, 2 Devs, 1 QA",
+  "tecnologia": "React + Node.js + PostgreSQL + AWS"
+}
+```
+
+El navigator lo detecta automaticamente y ofrece cargar esos valores.
+Puedes aceptar todo, secciones especificas, o ignorarlo.
 
 ## Validacion de variables
 

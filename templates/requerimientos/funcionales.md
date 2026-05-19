@@ -19,3 +19,7 @@ fecha: {{fecha}}
 
 ## Roadmap
 {{roadmap}}
+
+## Diagramas
+
+{{mermaid_diagrams}}

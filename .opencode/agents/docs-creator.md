@@ -20,7 +20,15 @@ PASOS:
    a. Pregunta al usuario UNA SOLA vez
    b. Si no responde concreto, asigna <!-- TODO: Pendiente de definir -->
 6. NUNCA dejes un marcador {{variable}} literal en el archivo final
-7. Escribe el archivo con write en proyectos/[slug]/docs/
+7. Para la variable {{mermaid_diagrams}}, GENERA diagramas Mermaid.js
+   usando los datos de epicas, sprints y stakeholders del JSON.
+   Si no puedes generar un diagrama valido, deja:
+   `<!-- Diagrama no disponible -->`
+8. Para las variables {{tl_tareas}}, {{dev_tareas}}, {{qa_tareas}},
+   {{po_tareas}} en task-cards.md, DERIVALAS de tareas_1, tareas_2,
+   responsable_1, responsable_2 y equipo del JSON. Distribuye las
+   tareas segun el rol de cada responsable.
+9. Escribe el archivo con write en proyectos/[slug]/docs/
    (write crea las carpetas automaticamente si no existen)
 
 MAPPING DE TEMPLATES:
@@ -34,6 +42,11 @@ MAPPING DE TEMPLATES:
 | templates/backlog/sprint-plan.md | proyectos/[slug]/docs/backlog/sprint-plan.md |
 | templates/usabilidad.md | proyectos/[slug]/docs/usabilidad.md |
 | templates/presentacion-ejecutiva.md | proyectos/[slug]/docs/presentacion-ejecutiva.md |
+| templates/task-cards.md | proyectos/[slug]/docs/task-cards.md |
+| templates/roadmap-sprints.md | proyectos/[slug]/docs/roadmap-sprints.md |
+| templates/acta-reunion.md | proyectos/[slug]/docs/acta-reunion.md |
+| templates/retrospectiva.md | proyectos/[slug]/docs/retrospectiva.md |
+| templates/glosario.md | proyectos/[slug]/docs/glosario.md |
 
 Ejemplo: si slug = "mi-proyecto", las rutas seran:
   proyectos/mi-proyecto/docs/product-vision.md

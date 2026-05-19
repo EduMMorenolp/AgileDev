@@ -23,3 +23,7 @@ estado: planificado
 - Pruebas unitarias pasan
 - Documentacion actualizada
 - Despliegue en entorno de pruebas
+
+## Diagramas
+
+{{mermaid_diagrams}}

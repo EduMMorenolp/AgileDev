@@ -2,6 +2,35 @@
 
 Todas las versiones notables de AgileDev Suite.
 
+## v2.1.0 (2026-05-19)
+
+### Changed
+- `pm-navigator.md`: de 94 preguntas individuales a ~12 preguntas agrupadas en lenguaje natural.
+  El navigador extrae multiples variables de cada respuesta.
+- `pm-navigator.md`: ahora lee `proyectos/_defaults.json` y ofrece precargar valores.
+- `README.md`: documentacion actualizada a v2.1.0
+
+### Added
+- `proyectos/_defaults.json`: archivo opcional con valores reutilizables entre proyectos
+  (stakeholders, tecnologia, equipo, comunicacion, etc.)
+
+## v2.0.0 (2026-05-19)
+
+### Added
+- `docs-validator.md`: nuevo agente que revisa ortografia, consistencia cruzada, TODOs y secciones vacias
+- 5 nuevos templates: `task-cards.md`, `roadmap-sprints.md`, `acta-reunion.md`, `retrospectiva.md`, `glosario.md`
+- Multi-sprint: soporte para hasta 6 sprints (sprint_count + sprint_1/2/3/4/5/6 variables)
+- Diagramas Mermaid.js generados automaticamente en templates (Gantt, QuadrantChart, Flowchart, Timeline)
+- Task cards derivadas automaticamente por rol desde datos del sprint
+- `CHANGELOG.md` propio del proyecto AgileDev
+
+### Changed
+- `pm-navigator.md`: seccion 6 expandida de 10 a 31 preguntas (multi-sprint)
+- `docs-creator.md`: genera diagramas Mermaid y deriva task cards automaticamente
+- `product-vision.md`, `funcionales.md`, `sprint-plan.md`, `presentacion-ejecutiva.md`: agregado `{{mermaid_diagrams}}`
+- JSON plano: de ~70 a ~120 variables totales
+- `README.md`: documentacion actualizada a v2.0.0
+
 ## v1.3.0 (2026-05-19)
 
 ### Added

@@ -24,3 +24,7 @@ tipo: {{tipo}}
 
 ## Tecnologia sugerida
 {{tecnologia}}
+
+## Diagramas
+
+{{mermaid_diagrams}}
