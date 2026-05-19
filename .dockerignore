@@ -1,0 +1,8 @@
+.git
+.gitignore
+node_modules
+.dockerignore
+Dockerfile
+README.md
+CHANGELOG.md
+proyectos/ejemplo

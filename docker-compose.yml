@@ -1,0 +1,15 @@
+services:
+  agiledev:
+    build: .
+    container_name: agiledev
+    ports:
+      - "4097:4097"
+    env_file: .env
+    environment:
+      OPENCODE_SERVER_USERNAME: adreapm
+      OPENCODE_SERVER_PASSWORD: pm1234
+    volumes:
+      - ./proyectos:/workspace/proyectos
+      - ./opencode.json:/workspace/opencode.json
+      - ./templates:/workspace/templates
+    restart: unless-stopped
