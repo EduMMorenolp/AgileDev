@@ -13,6 +13,8 @@ Todas las versiones notables de AgileDev Suite.
 ### Added
 - `proyectos/_defaults.json`: archivo opcional con valores reutilizables entre proyectos
   (stakeholders, tecnologia, equipo, comunicacion, etc.)
+- `_variables.json`: snapshot completo de variables que `@docs-creator` genera en cada proyecto.
+  Copiando este archivo a `_defaults.json` se reusan los valores en el proximo proyecto.
 
 ## v2.0.0 (2026-05-19)
 

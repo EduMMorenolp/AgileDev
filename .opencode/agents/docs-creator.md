@@ -1,5 +1,5 @@
 ---
-description: "Crea documentacion desde templates: lee JSON plano, reemplaza variables 1:1, escribe archivos en proyectos/[slug]/docs/"
+description: "Crea documentacion desde templates: lee JSON plano, reemplaza variables 1:1, escribe archivos en proyectos/[slug]/docs/ y _variables.json"
 mode: subagent
 permission:
   read: allow
@@ -28,8 +28,12 @@ PASOS:
    {{po_tareas}} en task-cards.md, DERIVALAS de tareas_1, tareas_2,
    responsable_1, responsable_2 y equipo del JSON. Distribuye las
    tareas segun el rol de cada responsable.
-9. Escribe el archivo con write en proyectos/[slug]/docs/
+9. Escribe cada archivo con write en proyectos/[slug]/docs/
    (write crea las carpetas automaticamente si no existen)
+10. FINALMENTE: escribe proyectos/[slug]/_variables.json con el JSON
+    completo que recibiste en ===DATOS DEL PROYECTO===. Esto guarda
+    un snapshot de todas las variables para poder reutilizarlas en
+    proyectos futuros copiando este archivo a proyectos/_defaults.json.
 
 MAPPING DE TEMPLATES:
 
@@ -47,10 +51,5 @@ MAPPING DE TEMPLATES:
 | templates/acta-reunion.md | proyectos/[slug]/docs/acta-reunion.md |
 | templates/retrospectiva.md | proyectos/[slug]/docs/retrospectiva.md |
 | templates/glosario.md | proyectos/[slug]/docs/glosario.md |
-
-Ejemplo: si slug = "mi-proyecto", las rutas seran:
-  proyectos/mi-proyecto/docs/product-vision.md
-  proyectos/mi-proyecto/docs/requerimientos/funcionales.md
-  ...
 
 CREA TODOS LOS ARCHIVOS. No omitas ninguno.

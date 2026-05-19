@@ -1,20 +1,2 @@
 {
-  "stakeholders_lista": "Gerente de Operaciones, Clientes corporativos, Equipo de deposito, Area de Sistemas, Proveedores de logistica",
-  "decisor_presupuesto": "Gerente de Operaciones",
-  "aprobador_cambios": "Comite de Producto (Gerente + Sistemas + Calidad)",
-  "poder_interes": "Gerente Operaciones (alto-alto), Clientes (bajo-alto), Deposito (bajo-alto), Sistemas (alto-bajo)",
-  "comunicacion_frecuencia": "Semanal",
-  "comunicacion_canal": "Email + reunion semanal de 30 min",
-  "equipo": "1 Tech Lead, 2 Desarrolladores Fullstack, 1 QA",
-  "tecnologia": "React + Node.js + PostgreSQL + AWS",
-  "rendimiento": "Carga < 3s, 100 usuarios concurrentes, consultas < 500ms",
-  "seguridad": "HTTPS, autenticacion JWT, roles cliente/admin",
-  "usabilidad": "Mobile-first, maximo 3 pasos por accion principal",
-  "compatibilidad": "Chrome, Firefox, Safari, Edge (2 versiones anteriores)",
-  "mantenibilidad": "Codigo modular, tests > 80%, documentacion por sprint",
-  "nivel_usabilidad": "Usuario nuevo completa flujo principal en < 5 min",
-  "dispositivos_objetivo": "Web desktop + tablet + mobile responsive",
-  "idiomas": "Espanol (principal), ingles (admin)",
-  "sprint_1_duracion": "2 semanas",
-  "riesgo_adopcion": "Usuarios acostumbrados a procesos manuales pueden resistirse al cambio"
 }
