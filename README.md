@@ -1,11 +1,11 @@
-# AgileDev Suite v1.1.0
+# AgileDev Suite v1.2.0
 
 Sistema CASE para la gestion integrada de preparacion de proyectos de software basado en Scrum, Ingenieria de Requerimientos y Control de Configuracion.
 
 ## Arquitectura de Agentes
 
 ### pm-navigator (Primary - Tab)
-Orquestador principal. Realiza entrevista estructurada en 6 secciones, **resume** las respuestas, construye un bloque JSON y coordina a los subagentes via Task tool.
+Orquestador principal. Realiza **entrevista detallada** que recolecta todas las variables de los templates (45+ preguntas mapeadas 1:1), construye un JSON plano, genera un slug del nombre del proyecto y coordina a los subagentes segun el tipo de proyecto.
 
 **Permisos:** read + task (sin edit ni bash)
 
@@ -13,17 +13,18 @@ Orquestador principal. Realiza entrevista estructurada en 6 secciones, **resume*
 
 | Agente | Funcion | Permisos |
 |--------|---------|----------|
-| `@proyecto-nuevo` | Refina datos y estructura epicas para proyectos desde cero | read + edit |
-| `@proyecto-existente` | Documenta proyectos en curso, detecta gaps | read + edit |
-| `@docs-creator` | Genera docs desde plantillas; valida variables; max 1 repregunta; asigna `<!-- TODO -->` si falta | read + edit |
+| `@proyecto-nuevo` | Valida prioridades, completa MVP/roadmap, devuelve JSON plano | read + edit |
+| `@proyecto-existente` | Lee docs actuales, detecta gaps, recomienda crear o actualizar | read + edit |
+| `@docs-creator` | Lee templates, reemplaza `{{variable}}` 1:1 con JSON plano, escribe en `proyectos/[slug]/docs/` | read + edit |
 | `@docs-updater` | Modifica docs existentes usando SOLO `edit` por anclas Markdown. Nunca `write`. | read + edit |
-| `@agent-logs` | Registra cada creacion/modificacion en `changelog.md` del proyecto | read + edit |
+| `@agent-logs` | Registra cada accion en `changelog.md` del proyecto | read + edit |
 
 ## Estructura del proyecto
 
 ```
 Proyectos/AgileDev/
 ├── opencode.json
+├── README.md
 ├── .opencode/agents/
 │   ├── pm-navigator.md
 │   ├── proyecto-nuevo.md
@@ -41,49 +42,110 @@ Proyectos/AgileDev/
 │       └── sprint-plan.md
 └── proyectos/
     └── ejemplo/
+        ├── changelog.md
         └── docs/
             ├── product-vision.md
             ├── requerimientos/
+            │   ├── funcionales.md
+            │   └── no-funcionales.md
             └── backlog/
+                ├── backlog.md
+                └── sprint-plan.md
 ```
 
 ## Flujo de uso
 
 1. Abre opencode y presiona **Tab** hasta `pm-navigator`
 2. Di "hola" o "tengo un proyecto"
-3. El navigador realiza la entrevista paso a paso (6 secciones)
-4. Al completar, **resume** las respuestas y construye el bloque JSON
-5. Invoca al subagente correspondiente (`@proyecto-nuevo` o `@proyecto-existente`) con los datos
-6. Invoca `@docs-creator` con datos originales + refinados para generar los archivos
-7. Invoca `@agent-logs` para registrar en `changelog.md`
-8. Los documentos quedan en `proyectos/[nombre]/docs/`
+3. El navigador realiza la entrevista completa (6 secciones, ~45 preguntas)
+4. Al completar, construye un **JSON plano** con todas las variables
+5. Genera un **slug** del nombre del proyecto (ej: "Mi Proyecto" → "mi-proyecto")
+6. Flujo segun tipo:
+
+   **NUEVO:**
+   - Invoca `@proyecto-nuevo` para validar prioridades y completar MVP/roadmap
+   - Fusiona ambos JSON
+   - Invoca `@docs-creator` para generar los 5 archivos desde templates
+   - Invoca `@agent-logs`
+
+   **EXISTENTE:**
+   - Invoca `@proyecto-existente` para analizar que docs ya existen
+   - Pregunta al usuario: "Crear desde cero o actualizar?"
+   - Si "crear" → `@docs-creator` (sobrescribe)
+   - Si "actualizar" → `@docs-updater` (completa lo que falta)
+   - Invoca `@agent-logs`
+
+7. Los documentos quedan en `proyectos/[slug]/docs/`
 
 ## Manejo de estado entre agentes
 
-El `pm-navigator` pasa los datos a cada subagente mediante un bloque JSON inline
-dentro del prompt del Task tool:
+El `pm-navigator` pasa los datos a cada subagente mediante un bloque **JSON plano**
+inline dentro del prompt del Task tool. El JSON contiene las MISMA CLAVES que los
+marcadores `{{variable}}` de los templates:
 
 ```
 ===DATOS DEL PROYECTO===
 ```json
 {
-  "nombre_proyecto": "...",
-  "vision": "resumen",
+  "nombre_proyecto": "Sistema de Pedidos Online",
+  "slug": "sistema-de-pedidos-online",
+  "problema_descripcion": "...",
+  "solucion_descripcion": "...",
+  "epica_1_nombre": "Catalogo",
   ...
 }
 ```
 ===FIN DATOS===
 ```
 
-Los subagentes leen este bloque al inicio de su ejecucion. No acceden al
-historial del chat ni a archivos temporales.
+Los subagentes leen este bloque al inicio. Todas las claves son planas
+(sin arrays anidados), lo que permite a `docs-creator` reemplazar
+directamente `{{variable}}` → valor.
 
-## Validacion de variables en templates
+## Flujo detallado por tipo de proyecto
+
+### Proyecto Nuevo
+```
+pm-navigator (entrevista)
+  → JSON plano con 45+ variables
+  → @proyecto-nuevo (valida prioridades, sugiere MVP/roadmap)
+  → fusion de JSONs
+  → @docs-creator (crea 5 archivos desde templates)
+  → @agent-logs (registra en changelog.md)
+```
+
+### Proyecto Existente
+```
+pm-navigator (entrevista)
+  → JSON plano
+  → @proyecto-existente (lee docs, detecta gaps)
+  → decision del usuario: CREAR o ACTUALIZAR
+  → si CREAR: @docs-creator (sobrescribe todo)
+  → si ACTUALIZAR: @docs-updater (completa lo que falta)
+  → @agent-logs
+```
+
+## Variables de templates
+
+Las 5 plantillas usan ~45 marcadores `{{variable}}`. El navigator pregunta
+por cada una de forma explicita durante la entrevista. Las variables se
+agrupan en 6 secciones:
+
+| Seccion | Variables | Template destino |
+|---------|-----------|-----------------|
+| Info basica | nombre_proyecto, tipo, fecha | todos |
+| Vision | problema_descripcion, solucion_descripcion, objetivos, publico_objetivo, criterios_exito | product-vision.md |
+| Tecnologia | tecnologia, rendimiento, seguridad, usabilidad, compatibilidad, mantenibilidad | product-vision.md, no-funcionales.md |
+| Epicas | epica_1/2/3_nombre, _desc, _prioridad, _deps, mvp_descripcion, roadmap | funcionales.md |
+| Historias | historia_1/2/3, sp_1/2/3, ca_1/2/3 | backlog.md |
+| Sprint | sprint_numero, duracion, goal, equipo, fechas, tareas, responsables | sprint-plan.md |
+
+## Validacion de variables
 
 `@docs-creator` aplica esta politica:
-1. Intenta reemplazar todas las `{{variable}}` con valores del JSON
-2. Si falta un valor, **repregunta al usuario UNA SOLA vez**
-3. Si el usuario no clarifica, asigna automaticamente `<!-- TODO: Pendiente de definir -->`
+1. Reemplaza cada `{{variable}}` con el valor del JSON plano
+2. Si una variable falta o esta vacia, **repregunta al usuario UNA SOLA vez**
+3. Si el usuario no clarifica, asigna `<!-- TODO: Pendiente de definir -->`
 4. Nunca deja un marcador `{{variable}}` literal en el archivo final
 
 ## Idempotencia en @docs-updater
@@ -97,7 +159,7 @@ historial del chat ni a archivos temporales.
 ## Control de Cambios (agent-logs)
 
 Cada vez que se crea o modifica documentacion, `@agent-logs` escribe o
-actualiza `proyectos/[nombre]/changelog.md` con:
+actualiza `proyectos/[slug]/changelog.md` con:
 
 - Fecha y hora
 - Accion (creacion / modificacion)
@@ -108,8 +170,10 @@ actualiza `proyectos/[nombre]/changelog.md` con:
 ## Personalizacion
 
 - Las plantillas en `templates/` pueden modificarse libremente
-- Para cambiar la estructura de documentacion, edita los archivos `.md` en templates/
-- Los templates usan marcadores `{{variable}}` que `@docs-creator` reemplaza automaticamente
+- Si agregas/quitas marcadores `{{variable}}` en templates, actualiza las
+  preguntas de `pm-navigator.md` para mantener la consistencia
+- Las variables deben coincidir exactamente entre el JSON del navigator,
+  los templates y los subagentes
 
 ## Requisitos
 
