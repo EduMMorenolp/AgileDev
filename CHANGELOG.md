@@ -49,3 +49,20 @@ Todas las versiones notables de AgileDev Suite.
 - 5 templates: product-vision, funcionales, no-funcionales, backlog, sprint-plan
 - Proyecto ejemplo con datos de "Sistema de Pedidos Online"
 - Sin dependencias externas (Python, Tesseract, ffmpeg, etc.)
+
+## 2026-05-19 12:00
+
+**Accion:** creacion
+**Agente:** pm-navigator + docs-creator
+**Proyecto:** Desarrollos (slug: desarrollos)
+**Sprint:** 1 (20-may-2026 al 20-jun-2026)
+**Equipo:** 1 Backend, 1 Frontend, 1 QA
+**Archivos creados (7):**
+- `proyectos/desarrollos/docs/product-vision.md`
+- `proyectos/desarrollos/docs/requerimientos/funcionales.md`
+- `proyectos/desarrollos/docs/requerimientos/no-funcionales.md`
+- `proyectos/desarrollos/docs/backlog/backlog.md`
+- `proyectos/desarrollos/docs/backlog/sprint-plan.md`
+- `proyectos/desarrollos/docs/usabilidad.md`
+- `proyectos/desarrollos/docs/presentacion-ejecutiva.md`
+**Descripcion:** Creacion de documentacion completa para nuevo proyecto "Desarrollos". Se generaron los 7 documentos base del proyecto, cubriendo vision de producto, requerimientos funcionales y no funcionales, backlog, planificacion del sprint 1, usabilidad y presentacion ejecutiva. Equipo conformado por 1 Backend, 1 Frontend y 1 QA.
