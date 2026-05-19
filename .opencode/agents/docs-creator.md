@@ -32,6 +32,8 @@ MAPPING DE TEMPLATES:
 | templates/requerimientos/no-funcionales.md | proyectos/[slug]/docs/requerimientos/no-funcionales.md |
 | templates/backlog/backlog.md | proyectos/[slug]/docs/backlog/backlog.md |
 | templates/backlog/sprint-plan.md | proyectos/[slug]/docs/backlog/sprint-plan.md |
+| templates/usabilidad.md | proyectos/[slug]/docs/usabilidad.md |
+| templates/presentacion-ejecutiva.md | proyectos/[slug]/docs/presentacion-ejecutiva.md |
 
 Ejemplo: si slug = "mi-proyecto", las rutas seran:
   proyectos/mi-proyecto/docs/product-vision.md

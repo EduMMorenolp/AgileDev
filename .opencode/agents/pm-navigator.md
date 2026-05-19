@@ -102,6 +102,74 @@ PREGUNTA 6.8:  "Responsable de las tareas 1?"                 → responsable_1
 PREGUNTA 6.9:  "Tareas para la historia 2?"                   → tareas_2
 PREGUNTA 6.10: "Responsable de las tareas 2?"                 → responsable_2
 
+--- SECCION 7: GESTION DE STAKEHOLDERS (mapea a presentacion-ejecutiva.md) ---
+
+PREGUNTA 7.1: "Quienes son todos los involucrados del proyecto?
+               (cliente, usuarios, equipo, patrocinador)"       → stakeholders_lista
+PREGUNTA 7.2: "De los involucrados, quien DECIDE el
+               presupuesto?"                                     → decisor_presupuesto
+PREGUNTA 7.3: "Quien APRUEBA los cambios de alcance?"           → aprobador_cambios
+PREGUNTA 7.4: "Que poder e interes tiene cada stakeholder?
+               (matriz poder-interes: alto/bajo)"                → poder_interes
+PREGUNTA 7.5: "Cada cuanto hay que informarles?
+               (semanal, quincenal, mensual)"                    → comunicacion_frecuencia
+PREGUNTA 7.6: "Por que canal prefieren la comunicacion?
+               (email, reunion semanal, dashboard)"              → comunicacion_canal
+
+--- SECCION 8: RIESGOS DE NEGOCIO (mapea a presentacion-ejecutiva.md) ---
+
+PREGUNTA 8.1: "Que riesgos de mercado existen?
+               (competidores, cambios en el sector)"             → riesgo_mercado
+PREGUNTA 8.2: "Hay riesgos legales o normativos?
+               (regulaciones, licencias, privacidad de datos)"   → riesgo_legal
+PREGUNTA 8.3: "Que podria hacer que los usuarios NO
+               adopten el producto?"                             → riesgo_adopcion
+PREGUNTA 8.4: "Hay dependencias externas criticas?
+               (proveedores, APIs, servicios de terceros)"       → riesgo_dependencia
+
+--- SECCION 9: USABILIDAD Y ACCESIBILIDAD (mapea a usabilidad.md) ---
+
+PREGUNTA 9.1: "Describi el perfil de los usuarios finales:
+               (edad, experiencia tecnica, contexto de uso)"     → perfil_usuarios_detalle
+PREGUNTA 9.2: "Hay requisitos legales de accesibilidad?
+               (WCAG 2.1, Ley 26.653 Argentina,
+               discapacidades visuales/motoras/cognitivas)"      → necesidades_accesibilidad
+PREGUNTA 9.3: "Que nivel de usabilidad se espera?
+               (ej: un usuario nuevo completa el flujo
+               principal en menos de 3 minutos)"                 → nivel_usabilidad
+PREGUNTA 9.4: "En que dispositivos se usara?
+               (web desktop, mobile, tablet, kiosko)"            → dispositivos_objetivo
+PREGUNTA 9.5: "Que idiomas debe soportar?"                      → idiomas
+
+--- SECCION 10: VALOR DE NEGOCIO (mapea a presentacion-ejecutiva.md) ---
+
+PREGUNTA 10.1: "Cual es el pitch ejecutivo? (resumen de 1
+                parrafo para vender el proyecto)"               → pitch_ejecutivo
+PREGUNTA 10.2: "Como se justifica este proyecto?
+                (build vs buy vs outsourcing)"                   → justificacion_negocio
+PREGUNTA 10.3: "Cual es el ROI esperado?
+                (retorno de inversion, ahorros, ingresos)"       → roi
+PREGUNTA 10.4: "Hay competidores o alternativas en el
+                mercado?"                                         → competidores_alternativas
+PREGUNTA 10.5: "Analisis FODA? (Fortalezas, Oportunidades,
+                Debilidades, Amenazas)"                          → foda
+PREGUNTA 10.6: "Cual es el peor escenario si NO hacemos
+                el proyecto?"                                    → peor_escenario
+PREGUNTA 10.7: "Cronograma de hitos principales?
+                (fechas clave de entregas)"                      → cronograma_hitos
+PREGUNTA 10.8: "Que equipo se requiere a nivel general?
+                (roles, cantidad de personas)"                   → equipo_requerido
+
+--- SECCION 11: METRICAS DE EXITO (mapea a product-vision.md + presentacion-ejecutiva.md) ---
+
+PREGUNTA 11.1: "Cuales son las metricas clave del producto?
+                (NPS, retencion de usuarios, DAU/MAU,
+                tasa de conversion)"                             → kpi_principales
+PREGUNTA 11.2: "Metricas tecnicas?
+                (tiempo de respuesta, uptime, tasa de error)"    → kpi_tecnicos
+PREGUNTA 11.3: "Metricas de negocio?
+                (ROI, reduccion de costos, crecimiento)"         → kpi_negocio
+
 ===========================================================================
 AL COMPLETAR TODAS LAS PREGUNTAS
 ===========================================================================
@@ -162,7 +230,33 @@ AL COMPLETAR TODAS LAS PREGUNTAS
   "tareas_1": "valor",
   "responsable_1": "valor",
   "tareas_2": "valor",
-  "responsable_2": "valor"
+  "responsable_2": "valor",
+  "stakeholders_lista": "valor",
+  "decisor_presupuesto": "valor",
+  "aprobador_cambios": "valor",
+  "poder_interes": "valor",
+  "comunicacion_frecuencia": "valor",
+  "comunicacion_canal": "valor",
+  "riesgo_mercado": "valor",
+  "riesgo_legal": "valor",
+  "riesgo_adopcion": "valor",
+  "riesgo_dependencia": "valor",
+  "perfil_usuarios_detalle": "valor",
+  "necesidades_accesibilidad": "valor",
+  "nivel_usabilidad": "valor",
+  "dispositivos_objetivo": "valor",
+  "idiomas": "valor",
+  "pitch_ejecutivo": "valor",
+  "justificacion_negocio": "valor",
+  "roi": "valor",
+  "competidores_alternativas": "valor",
+  "foda": "valor",
+  "peor_escenario": "valor",
+  "cronograma_hitos": "valor",
+  "equipo_requerido": "valor",
+  "kpi_principales": "valor",
+  "kpi_tecnicos": "valor",
+  "kpi_negocio": "valor"
 }
 ```
 ===FIN DATOS===

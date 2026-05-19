@@ -1,4 +1,4 @@
-# AgileDev Suite v1.2.0
+# AgileDev Suite v1.3.0
 
 Sistema CASE para la gestion integrada de preparacion de proyectos de software basado en Scrum, Ingenieria de Requerimientos y Control de Configuracion.
 
@@ -19,6 +19,10 @@ Orquestador principal. Realiza **entrevista detallada** que recolecta todas las 
 | `@docs-updater` | Modifica docs existentes usando SOLO `edit` por anclas Markdown. Nunca `write`. | read + edit |
 | `@agent-logs` | Registra cada accion en `changelog.md` del proyecto | read + edit |
 
+## Changelog
+
+Las novedades de cada version se registran en [CHANGELOG.md](CHANGELOG.md).
+
 ## Estructura del proyecto
 
 ```
@@ -34,6 +38,8 @@ Proyectos/AgileDev/
 │   └── agent-logs.md
 ├── templates/
 │   ├── product-vision.md
+│   ├── usabilidad.md
+│   ├── presentacion-ejecutiva.md
 │   ├── requerimientos/
 │   │   ├── funcionales.md
 │   │   └── no-funcionales.md
@@ -45,6 +51,8 @@ Proyectos/AgileDev/
         ├── changelog.md
         └── docs/
             ├── product-vision.md
+            ├── usabilidad.md
+            ├── presentacion-ejecutiva.md
             ├── requerimientos/
             │   ├── funcionales.md
             │   └── no-funcionales.md
@@ -57,7 +65,7 @@ Proyectos/AgileDev/
 
 1. Abre opencode y presiona **Tab** hasta `pm-navigator`
 2. Di "hola" o "tengo un proyecto"
-3. El navigador realiza la entrevista completa (6 secciones, ~45 preguntas)
+3. El navigador realiza la entrevista completa (11 secciones, ~70 preguntas)
 4. Al completar, construye un **JSON plano** con todas las variables
 5. Genera un **slug** del nombre del proyecto (ej: "Mi Proyecto" → "mi-proyecto")
 6. Flujo segun tipo:
@@ -127,18 +135,23 @@ pm-navigator (entrevista)
 
 ## Variables de templates
 
-Las 5 plantillas usan ~45 marcadores `{{variable}}`. El navigator pregunta
+Las 7 plantillas usan ~70 marcadores `{{variable}}`. El navigator pregunta
 por cada una de forma explicita durante la entrevista. Las variables se
-agrupan en 6 secciones:
+agrupan en 11 secciones:
 
 | Seccion | Variables | Template destino |
 |---------|-----------|-----------------|
 | Info basica | nombre_proyecto, tipo, fecha | todos |
 | Vision | problema_descripcion, solucion_descripcion, objetivos, publico_objetivo, criterios_exito | product-vision.md |
 | Tecnologia | tecnologia, rendimiento, seguridad, usabilidad, compatibilidad, mantenibilidad | product-vision.md, no-funcionales.md |
+| Stakeholders | stakeholders_lista, poder_interes, comunicacion_frecuencia, comunicacion_canal, decisor_presupuesto, aprobador_cambios | presentacion-ejecutiva.md |
 | Epicas | epica_1/2/3_nombre, _desc, _prioridad, _deps, mvp_descripcion, roadmap | funcionales.md |
 | Historias | historia_1/2/3, sp_1/2/3, ca_1/2/3 | backlog.md |
+| Riesgos | riesgo_mercado, riesgo_legal, riesgo_adopcion, riesgo_dependencia | presentacion-ejecutiva.md |
 | Sprint | sprint_numero, duracion, goal, equipo, fechas, tareas, responsables | sprint-plan.md |
+| Usabilidad | perfil_usuarios_detalle, necesidades_accesibilidad, nivel_usabilidad, dispositivos_objetivo, idiomas | usabilidad.md |
+| Valor negocio | pitch_ejecutivo, justificacion_negocio, roi, competidores, foda, peor_escenario, cronograma_hitos, equipo_requerido | presentacion-ejecutiva.md |
+| Metricas | kpi_principales, kpi_tecnicos, kpi_negocio | product-vision.md, presentacion-ejecutiva.md |
 
 ## Validacion de variables
 
