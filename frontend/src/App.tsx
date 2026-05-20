@@ -12,6 +12,9 @@ const DEFAULT_MODEL = "opencode/deepseek-v4-flash-free"
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
+  const [minimizedSidebar, setMinimizedSidebar] = useState(false)
+  const [minimizedPanel, setMinimizedPanel] = useState(false)
   const [authError, setAuthError] = useState("")
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
@@ -119,7 +122,7 @@ export default function App() {
 
   // Get docs of the selected project (filtering out _defaults.json from the active lists)
   const filteredProjects = useMemo(() => {
-    return projects.filter((p) => p.slug !== "_defaults.json" && !p.slug.endsWith(".json"))
+    return projects.filter((p) => p.slug && p.slug !== "_defaults.json" && !p.slug.endsWith(".json"))
   }, [projects])
 
   const activeProject = filteredProjects.find((p) => p.slug === selectedProject)
@@ -130,26 +133,53 @@ export default function App() {
   }
 
   return (
-    <div className="relative flex h-screen w-screen overflow-hidden bg-gray-950">
+    <div className="relative flex min-h-screen w-screen bg-gray-950">
       {/* Premium radial glowing gradients behind the UI */}
       <div className="absolute top-[-10%] left-[-10%] h-[50%] w-[50%] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none animate-radial-1" />
       <div className="absolute bottom-[-10%] right-[-10%] h-[50%] w-[50%] rounded-full bg-teal-500/5 blur-[120px] pointer-events-none" />
 
       {/* Main split-screen layout */}
-      <div className="relative z-10 flex h-full w-full overflow-hidden">
-        <Sidebar
-          projects={filteredProjects}
-          selected={selectedProject}
-          onSelect={(slug) => {
-            setSelectedProject(slug)
-            if (slug === null) {
-              start()
-            }
-          }}
-        />
-        
+      <div className="relative z-10 flex h-full w-full overflow-hidden flex-col md:flex-row">
+        {/* Sidebar: full width on small screens, fixed on md+ */}
+        <div className={`${minimizedSidebar ? "w-20" : "w-full md:w-72"} md:flex-shrink-0 transition-all duration-300`}>
+          <div className="hidden md:block h-full">
+            <Sidebar
+              projects={filteredProjects}
+              selected={selectedProject}
+              onSelect={(slug) => {
+                setSelectedProject(slug)
+                if (slug === null) {
+                  start()
+                }
+              }}
+              isMinimized={minimizedSidebar}
+              onToggleMinimize={() => setMinimizedSidebar(!minimizedSidebar)}
+            />
+          </div>
+          {/* Mobile overlay version */}
+          {showSidebar && (
+            <div className="fixed inset-0 z-50 md:hidden">
+              <div className="absolute inset-0 bg-black/50" onClick={() => setShowSidebar(false)} />
+              <div className="relative h-full w-72">
+                <Sidebar
+                  projects={filteredProjects}
+                  selected={selectedProject}
+                  onSelect={(slug) => {
+                    setSelectedProject(slug)
+                    setShowSidebar(false)
+                    if (slug === null) start()
+                  }}
+                  onClose={() => setShowSidebar(false)}
+                  isMinimized={false}
+                  onToggleMinimize={() => {}}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Chat / Interview Panel */}
-        <div className="flex flex-1 flex-col h-full overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col">
           <Chat
             messages={messages}
             loading={loading}
@@ -158,23 +188,26 @@ export default function App() {
             models={models}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
+            // allow chat header to open mobile sidebar
+            onToggleSidebar={() => setShowSidebar((s) => !s)}
           />
         </div>
 
-        {/* Dynamic Right Panel: Interactive Form ONLY during interview (step > 0), DocPreview for selected project */}
-        {selectedProject ? (
-          <DocPreview
-            projectSlug={selectedProject}
-            docs={docs}
-          />
-        ) : currentStepAndMeta.step > 0 ? (
-          <InteractiveForm
-            currentStep={currentStepAndMeta.step}
-            detectedVariables={currentStepAndMeta.vars}
-            onSend={handleSend}
-            disabled={loading}
-          />
-        ) : null}
+        {/* Dynamic Right Panel: hidden on small screens to avoid overflow; visible on md+ */}
+        <div className={`${minimizedPanel ? "w-16" : "hidden md:flex md:w-96 lg:w-1/4"} flex-col transition-all duration-300`}>
+          {selectedProject ? (
+            <DocPreview projectSlug={selectedProject} docs={docs} isMinimized={minimizedPanel} onToggleMinimize={() => setMinimizedPanel(!minimizedPanel)} />
+          ) : currentStepAndMeta.step > 0 ? (
+            <InteractiveForm
+              currentStep={currentStepAndMeta.step}
+              detectedVariables={currentStepAndMeta.vars}
+              onSend={handleSend}
+              disabled={loading}
+              isMinimized={minimizedPanel}
+              onToggleMinimize={() => setMinimizedPanel(!minimizedPanel)}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   )

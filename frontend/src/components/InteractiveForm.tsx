@@ -5,6 +5,8 @@ interface Props {
   detectedVariables: Record<string, string>
   onSend: (text: string) => void
   disabled: boolean
+  isMinimized?: boolean
+  onToggleMinimize?: () => void
 }
 
 const STEP_METADATA = [
@@ -22,7 +24,7 @@ const STEP_METADATA = [
   { id: 12, title: "Tipo de Proyecto", desc: "Selecciona si el proyecto es nuevo o cuenta con documentación previa existente." },
 ]
 
-export default function InteractiveForm({ currentStep, detectedVariables, onSend, disabled }: Props) {
+export default function InteractiveForm({ currentStep, detectedVariables, onSend, disabled, isMinimized = false, onToggleMinimize }: Props) {
   const [formState, setFormState] = useState<Record<string, string>>({})
 
   // Update local state when incoming variables change
@@ -92,7 +94,7 @@ export default function InteractiveForm({ currentStep, detectedVariables, onSend
   return (
     <div className="flex flex-1 flex-col h-full bg-gray-950/45 border-l border-glass overflow-hidden animate-fade-in z-0">
       {/* Header */}
-      <div className="bg-gray-900/30 border-b border-gray-800/80 px-6 py-4.5">
+      <div className="bg-gray-900/30 border-b border-gray-800/80 px-6 py-4">
         <div className="flex items-center gap-2">
           <span className="flex h-5.5 w-5.5 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[10.5px] font-bold text-emerald-400">
             {currentStep}
@@ -600,7 +602,7 @@ export default function InteractiveForm({ currentStep, detectedVariables, onSend
               disabled={disabled}
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:from-gray-800 disabled:to-gray-800 disabled:text-gray-500 border-none px-4 py-3 text-center text-xs font-bold text-white transition-all duration-300 shadow-[0_4px_14px_rgba(16,185,129,0.2)] disabled:shadow-none"
             >
-              <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
               Guardar y Continuar en Chat

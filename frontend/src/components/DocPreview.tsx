@@ -4,6 +4,8 @@ import ReactMarkdown from "react-markdown"
 interface Props {
   projectSlug: string | null
   docs: string[]
+  isMinimized?: boolean
+  onToggleMinimize?: () => void
 }
 
 const TABS = [
@@ -84,7 +86,7 @@ function parseBlocks(text: string) {
   return blocks
 }
 
-export default function DocPreview({ projectSlug, docs }: Props) {
+export default function DocPreview({ projectSlug, docs, isMinimized = false, onToggleMinimize }: Props) {
   const [activeTab, setActiveTab] = useState(TABS[0].id)
   const [content, setContent] = useState<string>("")
   const [loading, setLoading] = useState(false)
@@ -197,34 +199,61 @@ export default function DocPreview({ projectSlug, docs }: Props) {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full bg-gray-950/45 border-l border-glass overflow-hidden animate-fade-in z-0">
+    <div className={`flex flex-1 flex-col h-full ${isMinimized ? "bg-gray-950/45 border-l border-glass" : "bg-gray-950/45 border-l border-glass"} overflow-hidden animate-fade-in z-0`}>
       {/* Dynamic Tab Bar */}
-      <div className="flex overflow-x-auto bg-gray-900/40 border-b border-gray-800/80 px-4 py-2 scrollbar-none">
-        <div className="flex gap-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 whitespace-nowrap border ${
-                activeTab === tab.id
-                  ? "bg-emerald-600/10 border-emerald-500/30 text-emerald-400 shadow-sm"
-                  : "border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/40"
-              }`}
-            >
-              {tab.name}
-            </button>
-          ))}
-        </div>
+      <div className="flex overflow-x-auto bg-gray-900/40 border-b border-gray-800/80 px-4 py-2 scrollbar-none justify-between items-center">
+        {isMinimized && onToggleMinimize ? (
+          <button
+            onClick={onToggleMinimize}
+            title="Expandir"
+            aria-label="Expandir panel"
+            className="p-2 rounded hover:bg-gray-800/40"
+          >
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        ) : (
+          <>
+            <div className="flex gap-1">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 whitespace-nowrap border ${
+                    activeTab === tab.id
+                      ? "bg-emerald-600/10 border-emerald-500/30 text-emerald-400 shadow-sm"
+                      : "border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/40"
+                  }`}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </div>
+            {onToggleMinimize && (
+              <button
+                onClick={onToggleMinimize}
+                title="Minimizar"
+                aria-label="Minimizar panel"
+                className="p-2 rounded hover:bg-gray-800/40"
+              >
+                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+          </>
+        )}
       </div>
 
       {/* Render Area */}
-      <div ref={renderRef} className="flex-1 overflow-y-auto p-6.5 space-y-4">
+      <div ref={renderRef} className="flex-1 overflow-y-auto p-6 space-y-4">
         {loading ? (
           // Shimmer Skeleton Loader
           <div className="space-y-4 animate-pulse">
             <div className="h-6 bg-gray-900 rounded-lg w-1/3" />
             <div className="h-4 bg-gray-900 rounded-lg w-1/4" />
-            <div className="border border-gray-900 rounded-2xl p-4.5 space-y-2">
+            <div className="border border-gray-900 rounded-2xl p-4 space-y-2">
               <div className="h-3.5 bg-gray-900 rounded w-full" />
               <div className="h-3.5 bg-gray-900 rounded w-11/12" />
               <div className="h-3.5 bg-gray-900 rounded w-4/5" />

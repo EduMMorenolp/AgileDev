@@ -55,7 +55,10 @@ function parseBlocks(text: string) {
 }
 
 export default function MessageBubble({ role, parts }: Props) {
-  const text = parts.filter((p) => p.type === "text").map((p) => p.text).join("\n")
+  const rawText = parts.filter((p) => p.type === "text").map((p) => p.text).join("\n")
+  
+  // Strip metadata blocks from assistant messages
+  const text = rawText.replace(/===METADATOS===([\s\S]*?)===FIN METADATOS===/g, "").trim()
   const isUser = role === "user"
   const blocks = parseBlocks(text)
 
@@ -72,16 +75,16 @@ export default function MessageBubble({ role, parts }: Props) {
 
       {/* Bubble Container */}
       <div
-        className={`max-w-[78%] px-4.5 py-3 shadow-lg transition-all duration-300 ${
+        className={`max-w-[85%] sm:max-w-[78%] md:max-w-[65%] lg:max-w-[55%] px-4 py-3 shadow-lg transition-all duration-300 ${
           isUser
             ? "bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-3xl rounded-br-none shadow-[0_4px_14px_rgba(16,185,129,0.15)]"
             : "bg-gray-900/80 border border-gray-800/80 text-gray-100 rounded-3xl rounded-bl-none backdrop-blur-md"
         }`}
       >
         {isUser ? (
-          <p className="text-[13.5px] leading-relaxed whitespace-pre-wrap font-medium">{text}</p>
+          <p className="text-[13.5px] leading-relaxed whitespace-pre-wrap font-medium break-words">{text}</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 break-words">
             {blocks.map((block, idx) => {
               if (block.type === "table") {
                 const rows = block.content as string[][]

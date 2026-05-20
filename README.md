@@ -37,6 +37,27 @@ Proyectos/AgileDev/
 3. Completa → genera docs en proyectos/[slug]/docs/
 ```
 
+## Desarrollo Frontend + Docker
+
+Para editar el frontend sin reconstruir la imagen en cada cambio:
+
+```
+# 1) Levanta backend/API en Docker
+docker-compose up -d agiledev
+
+# 2) En otra terminal, levanta Vite
+cd frontend
+npm run dev
+```
+
+Abre `http://localhost:5173` para desarrollo.
+
+En modo `dev`, Vite ahora hace proxy de:
+- `/api` -> `http://localhost:4097`
+- `/docs` -> `http://localhost:4097`
+
+Asi mantienes el backend en Docker y tienes hot reload inmediato en frontend.
+
 ## Documentacion
 
 | Archivo | Contenido |

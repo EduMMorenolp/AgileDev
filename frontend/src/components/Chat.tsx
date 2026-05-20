@@ -13,6 +13,7 @@ interface Props {
   models: OpenModel[]
   selectedModel: string
   onModelChange: (m: string) => void
+  onToggleSidebar?: () => void
 }
 
 export default function Chat({
@@ -23,6 +24,7 @@ export default function Chat({
   models,
   selectedModel,
   onModelChange,
+  onToggleSidebar,
 }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -34,6 +36,18 @@ export default function Chat({
     <div className="flex flex-1 flex-col h-full bg-gray-950/20 overflow-hidden">
       {/* Premium Header */}
       <div className="flex items-center justify-between border-b border-gray-800/80 bg-gray-900/30 px-5 py-3">
+        {/* Mobile menu button */}
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            aria-label="Abrir menú lateral"
+            className="md:hidden mr-2 p-2 rounded-md hover:bg-gray-800/40 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+          >
+            <svg className="h-5 w-5 text-gray-200" viewBox="0 0 24 24" fill="none">
+              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
         <div className="flex items-center gap-2">
           {/* Active green breathing indicator */}
           <span className="relative flex h-2.5 w-2.5">
@@ -64,8 +78,8 @@ export default function Chat({
         {messages.length === 0 && !loading && (
           <div className="flex h-full items-center justify-center py-20">
             <div className="text-center animate-slide-up">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-400 shadow-inner mb-4.5">
-                <svg className="h-7.5 w-7.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-400 shadow-inner mb-4">
+                <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
@@ -95,7 +109,7 @@ export default function Chat({
         )}
         
         {error && (
-          <div className="rounded-xl border border-red-800 bg-red-950/30 px-4.5 py-3 text-xs text-red-400 shadow-md">
+          <div className="rounded-xl border border-red-800 bg-red-950/30 px-4 py-3 text-xs text-red-400 shadow-md">
             {error}
           </div>
         )}
