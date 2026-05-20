@@ -33,9 +33,9 @@ export default function Chat({
   }, [messages])
 
   return (
-    <div className="flex flex-1 flex-col h-full bg-gray-950/20 overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col bg-gray-950/20">
       {/* Premium Header */}
-      <div className="flex items-center justify-between border-b border-gray-800/80 bg-gray-900/30 px-5 py-3">
+      <div className="flex items-center justify-between border-b border-gray-800/80 bg-gray-900/30 px-5 py-3 shrink-0">
         {/* Mobile menu button */}
         {onToggleSidebar && (
           <button
@@ -49,7 +49,6 @@ export default function Chat({
           </button>
         )}
         <div className="flex items-center gap-2">
-          {/* Active green breathing indicator */}
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>

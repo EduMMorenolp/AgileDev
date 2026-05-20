@@ -1,13 +1,31 @@
 services:
-  agiledev:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agiledev-backend
+    ports:
+      - "4098:4098"
+    env_file: .env
+    environment:
+      OPCODE_URL: http://agiledev-opencode:4096
+      ADMIN_USER: adreapm
+      ADMIN_PASS: pm1234
+      JWT_SECRET: ${JWT_SECRET:-agiledev-jwt-secure-key-2026}
+    depends_on:
+      - opencode
+    restart: unless-stopped
+
+  opencode:
     build: .
-    container_name: agiledev
+    container_name: agiledev-opencode
     ports:
       - "4097:4097"
     env_file: .env
     environment:
       OPENCODE_SERVER_USERNAME: adreapm
       OPENCODE_SERVER_PASSWORD: pm1234
+      BACKEND_PORT: 4098
     volumes:
       - ./proyectos:/workspace/proyectos
       - ./opencode.json:/workspace/opencode.json

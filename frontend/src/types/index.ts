@@ -28,3 +28,9 @@ export interface OpenModel {
   cost: { input: number; output: number }
   status: string
 }
+
+export interface UserInfo {
+  id: number
+  username: string
+  email: string
+}

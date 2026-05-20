@@ -1,34 +1,51 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import Login from "./components/Login"
+import Register from "./components/Register"
 import Chat from "./components/Chat"
 import Sidebar from "./components/Sidebar"
 import DocPreview from "./components/DocPreview"
 import InteractiveForm from "./components/InteractiveForm"
-import { setAuth, listProjects, listModels } from "./api/opencode"
+import { listProjects, listModels } from "./api/opencode"
 import { useSession } from "./hooks/useSession"
-import type { Project, OpenModel } from "./types"
+import { setToken, getToken, isLoggedIn, login as apiLogin, listSessions } from "./api/agile"
+import type { Project, OpenModel, UserInfo } from "./types"
 
 const DEFAULT_MODEL = "opencode/deepseek-v4-flash-free"
 
+type AuthPage = "login" | "register"
+
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
+  const [user, setUser] = useState<UserInfo | null>(null)
+  const [authPage, setAuthPage] = useState<AuthPage>("login")
+  const [authError, setAuthError] = useState("")
   const [showSidebar, setShowSidebar] = useState(false)
   const [minimizedSidebar, setMinimizedSidebar] = useState(false)
   const [minimizedPanel, setMinimizedPanel] = useState(false)
-  const [authError, setAuthError] = useState("")
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [models, setModels] = useState<OpenModel[]>([])
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL)
   const modelRef = useRef(DEFAULT_MODEL)
-  const { messages, loading, error, start, send } = useSession()
+  const { messages, setMessages, loading, error, start, send, restore, sessionId } = useSession()
+  const [savedSessions, setSavedSessions] = useState<any[]>([])
+  const [showSessionList, setShowSessionList] = useState(false)
+
+  const [rightPanelContent, setRightPanelContent] = useState<"doc" | "form" | "empty">("empty")
 
   useEffect(() => {
     modelRef.current = selectedModel
   }, [selectedModel])
 
-  const handleLogin = useCallback(async (user: string, pass: string) => {
-    setAuth(user, pass)
+  // Auto-login if token exists
+  useEffect(() => {
+    if (getToken()) {
+      setLoggedIn(true)
+      initApp()
+    }
+  }, [])
+
+  const initApp = useCallback(async () => {
     try {
       const [m] = await Promise.all([listModels(), listProjects()])
       setModels(m)
@@ -37,18 +54,51 @@ export default function App() {
       } else if (m.length > 0) {
         setSelectedModel(`${m[0].providerID}/${m[0].id}`)
       }
-      setLoggedIn(true)
-      setAuthError("")
       start()
+      loadSavedSessions()
     } catch (e: any) {
-      setAuthError("Credenciales inválidas o servidor no disponible")
+      console.error("Init error:", e)
     }
   }, [start])
+
+  const loadSavedSessions = async () => {
+    try {
+      const { sessions } = await listSessions()
+      setSavedSessions(sessions.filter((s: any) => s.status === "in_progress"))
+    } catch {}
+  }
+
+  const handleLogin = useCallback(async (username: string, password: string) => {
+    try {
+      const result = await apiLogin(username, password)
+      setToken(result.token)
+      setUser(result.user)
+      setLoggedIn(true)
+      setAuthError("")
+      initApp()
+    } catch (e: any) {
+      setAuthError(e.message || "Credenciales inválidas")
+    }
+  }, [initApp])
+
+  const handleRegister = useCallback((token: string) => {
+    setToken(token)
+    setLoggedIn(true)
+    setAuthError("")
+    initApp()
+  }, [initApp])
+
+  const handleLogout = useCallback(() => {
+    setToken(null)
+    setLoggedIn(false)
+    setUser(null)
+    setMessages([])
+  }, [])
 
   // Smart polling to fetch projects list
   useEffect(() => {
     if (!loggedIn) return
-    
+
     const fetchProj = async () => {
       try {
         const p = await listProjects()
@@ -56,7 +106,7 @@ export default function App() {
       } catch {}
     }
 
-    fetchProj() // Initial fetch
+    fetchProj()
     const interval = setInterval(fetchProj, 5000)
     return () => clearInterval(interval)
   }, [loggedIn])
@@ -65,6 +115,15 @@ export default function App() {
     (text: string) => send(text, modelRef.current),
     [send]
   )
+
+  const handleResumeSession = useCallback(async (dbId: number) => {
+    await restore(dbId)
+    setShowSessionList(false)
+  }, [restore])
+
+  const handleStartNew = useCallback(() => {
+    start()
+  }, [start])
 
   // Calculate current step and detected variables from assistant metadata
   const currentStepAndMeta = useMemo(() => {
@@ -82,7 +141,6 @@ export default function App() {
     let step = 1
     let vars: Record<string, string> = {}
 
-    // Try to parse structured metadata first
     const metaMatch = rawText.match(/===METADATOS===[\s\S]*?```json([\s\S]*?)```[\s\S]*?===FIN METADATOS===/)
     if (metaMatch && metaMatch[1]) {
       try {
@@ -97,7 +155,6 @@ export default function App() {
         console.error("Error parsing metadata from message:", err)
       }
     } else {
-      // Keyword scan fallback for step only
       const text = rawText.toUpperCase()
       if (text.includes("NOMBRE LE PONES") || text.includes("FECHA DE INICIO")) step = 1
       else if (text.includes("SECCION A") || text.includes("VISION")) step = 2
@@ -120,7 +177,18 @@ export default function App() {
     return { step, vars }
   }, [messages])
 
-  // Get docs of the selected project (filtering out _defaults.json from the active lists)
+  // Determine right panel content
+  useEffect(() => {
+    if (selectedProject) {
+      setRightPanelContent("doc")
+    } else if (currentStepAndMeta.step > 0) {
+      setRightPanelContent("form")
+    } else {
+      setRightPanelContent("empty")
+    }
+  }, [selectedProject, currentStepAndMeta.step])
+
+  // Get docs of the selected project
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => p.slug && p.slug !== "_defaults.json" && !p.slug.endsWith(".json"))
   }, [projects])
@@ -129,18 +197,19 @@ export default function App() {
   const docs = activeProject ? activeProject.docs : []
 
   if (!loggedIn) {
-    return <Login onLogin={handleLogin} error={authError} />
+    if (authPage === "register") {
+      return <Register onRegister={handleRegister} onSwitchToLogin={() => setAuthPage("login")} error={authError} />
+    }
+    return <Login onLogin={handleLogin} onSwitchToRegister={() => setAuthPage("register")} error={authError} />
   }
 
   return (
     <div className="relative flex min-h-screen w-screen bg-gray-950">
-      {/* Premium radial glowing gradients behind the UI */}
       <div className="absolute top-[-10%] left-[-10%] h-[50%] w-[50%] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none animate-radial-1" />
       <div className="absolute bottom-[-10%] right-[-10%] h-[50%] w-[50%] rounded-full bg-teal-500/5 blur-[120px] pointer-events-none" />
 
-      {/* Main split-screen layout */}
       <div className="relative z-10 flex h-full w-full overflow-hidden flex-col md:flex-row">
-        {/* Sidebar: full width on small screens, fixed on md+ */}
+        {/* Sidebar */}
         <div className={`${minimizedSidebar ? "w-20" : "w-full md:w-72"} md:flex-shrink-0 transition-all duration-300`}>
           <div className="hidden md:block h-full">
             <Sidebar
@@ -149,14 +218,19 @@ export default function App() {
               onSelect={(slug) => {
                 setSelectedProject(slug)
                 if (slug === null) {
+                  setRightPanelContent("form")
                   start()
                 }
               }}
               isMinimized={minimizedSidebar}
               onToggleMinimize={() => setMinimizedSidebar(!minimizedSidebar)}
+              savedSessions={savedSessions}
+              onResumeSession={handleResumeSession}
+              onStartNew={handleStartNew}
+              onLogout={handleLogout}
+              user={user}
             />
           </div>
-          {/* Mobile overlay version */}
           {showSidebar && (
             <div className="fixed inset-0 z-50 md:hidden">
               <div className="absolute inset-0 bg-black/50" onClick={() => setShowSidebar(false)} />
@@ -172,6 +246,11 @@ export default function App() {
                   onClose={() => setShowSidebar(false)}
                   isMinimized={false}
                   onToggleMinimize={() => {}}
+                  savedSessions={savedSessions}
+                  onResumeSession={handleResumeSession}
+                  onStartNew={handleStartNew}
+                  onLogout={handleLogout}
+                  user={user}
                 />
               </div>
             </div>
@@ -188,16 +267,15 @@ export default function App() {
             models={models}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
-            // allow chat header to open mobile sidebar
             onToggleSidebar={() => setShowSidebar((s) => !s)}
           />
         </div>
 
-        {/* Dynamic Right Panel: hidden on small screens to avoid overflow; visible on md+ */}
+        {/* Dynamic Right Panel */}
         <div className={`${minimizedPanel ? "w-16" : "hidden md:flex md:w-96 lg:w-1/4"} flex-col transition-all duration-300`}>
-          {selectedProject ? (
+          {rightPanelContent === "doc" && selectedProject ? (
             <DocPreview projectSlug={selectedProject} docs={docs} isMinimized={minimizedPanel} onToggleMinimize={() => setMinimizedPanel(!minimizedPanel)} />
-          ) : currentStepAndMeta.step > 0 ? (
+          ) : rightPanelContent === "form" ? (
             <InteractiveForm
               currentStep={currentStepAndMeta.step}
               detectedVariables={currentStepAndMeta.vars}
@@ -206,7 +284,19 @@ export default function App() {
               isMinimized={minimizedPanel}
               onToggleMinimize={() => setMinimizedPanel(!minimizedPanel)}
             />
-          ) : null}
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center p-8 bg-gray-950/20 text-center animate-fade-in h-full">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-900 border border-gray-800 text-gray-500 shadow-inner mb-4">
+                <svg className="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider">Previsualización de Entregables</h3>
+              <p className="mt-2 text-xs text-gray-500 max-w-sm leading-relaxed">
+                Seleccioná un proyecto de la barra lateral para ver su documentación, o iniciá una nueva entrevista para crear un proyecto ágil.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

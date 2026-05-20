@@ -1,4 +1,4 @@
-import type { Project } from "../types"
+import type { Project, UserInfo } from "../types"
 
 interface Props {
   projects: Project[]
@@ -7,9 +7,26 @@ interface Props {
   onClose?: () => void
   isMinimized?: boolean
   onToggleMinimize?: () => void
+  savedSessions?: any[]
+  onResumeSession?: (dbId: number) => void
+  onStartNew?: () => void
+  onLogout?: () => void
+  user?: UserInfo | null
 }
 
-export default function Sidebar({ projects, onSelect, selected, onClose, isMinimized = false, onToggleMinimize }: Props) {
+export default function Sidebar({
+  projects,
+  onSelect,
+  selected,
+  onClose,
+  isMinimized = false,
+  onToggleMinimize,
+  savedSessions = [],
+  onResumeSession,
+  onStartNew,
+  onLogout,
+  user,
+}: Props) {
   return (
     <aside className={`flex h-full ${isMinimized ? "w-20" : "w-72"} flex-col border-r border-glass bg-glass shadow-glass shrink-0 z-10 transition-all duration-300`}>
       {/* Brand Header */}
@@ -29,70 +46,121 @@ export default function Sidebar({ projects, onSelect, selected, onClose, isMinim
             </span>
           </div>
         )}
-        {!isMinimized && onToggleMinimize && (
+        {onToggleMinimize && (
           <button
             onClick={onToggleMinimize}
-            title="Minimizar"
+            title={isMinimized ? "Expandir" : "Minimizar"}
             className="hidden md:block ml-auto p-1 rounded hover:bg-gray-700"
-            aria-label="Minimizar barra lateral"
+            aria-label={isMinimized ? "Expandir barra lateral" : "Minimizar barra lateral"}
           >
             <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-        {isMinimized && onToggleMinimize && (
-          <button
-            onClick={onToggleMinimize}
-            title="Expandir"
-            className="hidden md:block ml-auto p-1 rounded hover:bg-gray-700"
-            aria-label="Expandir barra lateral"
-          >
-            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              {isMinimized ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              )}
             </svg>
           </button>
         )}
       </div>
 
-      {/* Top controls: close button for mobile overlays */}
+      {/* Close button for mobile */}
       {onClose && (
         <div className="px-3.5 pt-3">
-          <button
-            onClick={onClose}
-            aria-label="Cerrar barra lateral"
-            className="text-xs text-gray-400 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded"
-          >
+          <button onClick={onClose} aria-label="Cerrar barra lateral" className="text-xs text-gray-400 hover:text-gray-200 rounded">
             Cerrar ✕
           </button>
         </div>
       )}
 
-      {!isMinimized && (
-      <div className="p-3.5 border-b border-gray-800/60 bg-gray-950/15">
-        <button
-          onClick={() => onSelect(null)}
-          className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-400/25 border border-emerald-500/30 hover:border-emerald-400/50 py-2.5 px-4 text-center text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all duration-300 shadow-[0_2px_8px_rgba(16,185,129,0.04)] hover:shadow-[0_4px_16px_rgba(16,185,129,0.12)] transform active:scale-95"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          Nueva Entrevista
-        </button>
-      </div>
+      {/* User info */}
+      {!isMinimized && user && (
+        <div className="px-4 py-2 border-b border-gray-800/60 bg-gray-950/15">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400">
+              {user.username.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-gray-200 truncate">{user.username}</p>
+              <p className="text-[9px] text-gray-500 truncate">{user.email}</p>
+            </div>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Cerrar sesión"
+                className="p-1 rounded hover:bg-gray-800/60 text-gray-500 hover:text-red-400 transition-colors"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
-      {/* Projects Navigation */}
-      <div className="border-b border-gray-800/60 p-4 bg-gray-950/20">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-            Tus Proyectos
-          </h2>
-          <span className="text-[10px] font-bold text-gray-400 bg-gray-800/50 px-2 py-0.5 rounded-full border border-gray-800">
-            {projects.length}
-          </span>
+      {/* New Interview + Resume buttons */}
+      {!isMinimized && (
+        <div className="p-3.5 border-b border-gray-800/60 bg-gray-950/15 space-y-2">
+          <button
+            onClick={() => onSelect(null)}
+            className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-400/25 border border-emerald-500/30 hover:border-emerald-400/50 py-2.5 px-4 text-center text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all duration-300 shadow-[0_2px_8px_rgba(16,185,129,0.04)] hover:shadow-[0_4px_16px_rgba(16,185,129,0.12)] transform active:scale-95"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Entrevista
+          </button>
         </div>
-      </div>
+      )}
+
+      {/* Saved Sessions (incomplete) */}
+      {!isMinimized && savedSessions.length > 0 && (
+        <div className="border-b border-gray-800/60">
+          <div className="px-4 pt-3 pb-1.5">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-amber-500">
+              Entrevistas Pendientes
+            </h2>
+          </div>
+          <nav className="p-2 space-y-1 max-h-40 overflow-y-auto">
+            {savedSessions.map((s: any) => (
+              <button
+                key={s.id}
+                onClick={() => onResumeSession?.(s.id)}
+                className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-200 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 group"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-500">
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-semibold text-amber-300 truncate">
+                    {s.project_name || "Sin título"}
+                  </p>
+                  <p className="text-[9px] text-gray-500">
+                    {new Date(s.updated_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </nav>
+        </div>
+      )}
+
+      {/* Projects section */}
+      {!isMinimized && (
+        <div className="border-b border-gray-800/60 p-4 bg-gray-950/20">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              Tus Proyectos
+            </h2>
+            <span className="text-[10px] font-bold text-gray-400 bg-gray-800/50 px-2 py-0.5 rounded-full border border-gray-800">
+              {projects.length}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Projects list */}
       <nav className="flex-1 overflow-y-auto p-3.5 space-y-2">
@@ -118,12 +186,9 @@ export default function Sidebar({ projects, onSelect, selected, onClose, isMinim
                     : "border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/40 hover:border-gray-800"
                 }`}
               >
-                {/* Visual glow indicator */}
                 {isSelected && (
                   <div className="absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                 )}
-
-                {/* Folder icon */}
                 <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-300 ${
                   isSelected
                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
@@ -133,8 +198,6 @@ export default function Sidebar({ projects, onSelect, selected, onClose, isMinim
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                   </svg>
                 </div>
-
-                {/* Info project */}
                 <div className="flex-1 min-w-0">
                   <p className="text-[12.5px] font-bold truncate tracking-wide leading-tight">
                     {p.name}
@@ -151,7 +214,7 @@ export default function Sidebar({ projects, onSelect, selected, onClose, isMinim
         )}
       </nav>
 
-      {/* Footer controls */}
+      {/* Footer */}
       <div className="border-t border-gray-800/80 p-4 bg-gray-950/40 space-y-2">
         <a
           href="/docs/"

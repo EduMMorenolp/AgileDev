@@ -8,9 +8,8 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     proxy: {
-      // In development, keep frontend on Vite and delegate API/docs to Docker.
       '/api': {
-        target: 'http://localhost:4097',
+        target: 'http://localhost:4098',
         changeOrigin: true,
       },
       '/docs': {

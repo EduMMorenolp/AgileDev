@@ -112,7 +112,7 @@ export default function InteractiveForm({ currentStep, detectedVariables, onSend
       </div>
 
       {/* Form Fields Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-6.5">
+      <div className="flex-1 overflow-y-auto p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
           {currentStep === 1 && (
             <>

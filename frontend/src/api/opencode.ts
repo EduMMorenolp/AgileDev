@@ -1,23 +1,10 @@
 const BASE = "/api"
 
-let _username = ""
-let _password = ""
-
-export function setAuth(user: string, pass: string) {
-  _username = user
-  _password = pass
-}
-
-function authHeader(): string {
-  return "Basic " + btoa(`${_username}:${_password}`)
-}
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(BASE + path, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      Authorization: authHeader(),
       ...init?.headers,
     },
   })
@@ -26,7 +13,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     let msg = `Error ${res.status}`
     try {
       const j = JSON.parse(text)
-      msg = j.data?.message || msg
+      msg = j.error || j.data?.message || msg
     } catch {}
     throw new Error(msg)
   }

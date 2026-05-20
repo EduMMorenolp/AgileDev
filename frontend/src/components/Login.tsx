@@ -1,16 +1,37 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface Props {
   onLogin: (user: string, pass: string) => void
+  onSwitchToRegister: () => void
   error: string
 }
 
-export default function Login({ onLogin, error }: Props) {
-  const [user, setUser] = useState("adreapm")
+const STORAGE_KEY = "agile_remembered_credentials"
+
+export default function Login({ onLogin, onSwitchToRegister, error }: Props) {
+  const [user, setUser] = useState("")
   const [pass, setPass] = useState("")
+  const [remember, setRemember] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      try {
+        const { username, password } = JSON.parse(saved)
+        setUser(username || "")
+        setPass(password || "")
+        setRemember(true)
+      } catch {}
+    }
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (remember) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ username: user, password: pass }))
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
     onLogin(user, pass)
   }
 
@@ -33,6 +54,7 @@ export default function Login({ onLogin, error }: Props) {
               onChange={(e) => setUser(e.target.value)}
               className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               placeholder="usuario"
+              autoComplete="username"
             />
           </div>
           <div>
@@ -43,8 +65,18 @@ export default function Login({ onLogin, error }: Props) {
               onChange={(e) => setPass(e.target.value)}
               className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               placeholder="contraseña"
+              autoComplete="current-password"
             />
           </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="rounded border-gray-700 bg-gray-800 text-emerald-500 focus:ring-emerald-500"
+            />
+            <span className="text-xs text-gray-400">Recordar contraseña</span>
+          </label>
         </div>
 
         {error && (
@@ -57,6 +89,17 @@ export default function Login({ onLogin, error }: Props) {
         >
           Ingresar
         </button>
+
+        <p className="mt-4 text-center text-xs text-gray-500">
+          ¿No tenés cuenta?{" "}
+          <button
+            type="button"
+            onClick={onSwitchToRegister}
+            className="text-emerald-400 hover:text-emerald-300 underline"
+          >
+            Registrate
+          </button>
+        </p>
       </form>
     </div>
   )
