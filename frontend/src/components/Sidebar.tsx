@@ -1,47 +1,124 @@
-import { useState } from "react"
 import type { Project } from "../types"
 
 interface Props {
   projects: Project[]
-  onSelect: (slug: string) => void
+  onSelect: (slug: string | null) => void
   selected: string | null
 }
 
 export default function Sidebar({ projects, onSelect, selected }: Props) {
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-gray-800 bg-gray-900">
-      <div className="border-b border-gray-800 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-          Proyectos
-        </h2>
+    <aside className="flex h-full w-68 flex-col border-r border-glass bg-glass shadow-glass shrink-0 z-10">
+      {/* Brand Header */}
+      <div className="flex items-center gap-2.5 border-b border-gray-800/80 px-5 py-4 bg-gray-950/40">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-[0_2px_10px_rgba(16,185,129,0.3)]">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+        <div>
+          <h1 className="text-[13.5px] font-extrabold text-white tracking-wider uppercase leading-none">
+            AgileDev Suite
+          </h1>
+          <span className="text-[9.5px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-500/20 uppercase mt-1 inline-block">
+            v2.1.0 (Web)
+          </span>
+        </div>
       </div>
-      <nav className="flex-1 overflow-y-auto p-2">
-        {projects.length === 0 && (
-          <p className="px-2 text-sm text-gray-500">
-            Usá el chat para crear tu primer proyecto
-          </p>
+
+      {/* Nueva Entrevista Button */}
+      <div className="p-3.5 border-b border-gray-800/60 bg-gray-950/15">
+        <button
+          onClick={() => onSelect(null)}
+          className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-400/25 border border-emerald-500/30 hover:border-emerald-400/50 py-2.5 px-4 text-center text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-all duration-300 shadow-[0_2px_8px_rgba(16,185,129,0.04)] hover:shadow-[0_4px_16px_rgba(16,185,129,0.12)] transform active:scale-95"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Entrevista
+        </button>
+      </div>
+
+      {/* Projects Navigation */}
+      <div className="border-b border-gray-800/60 p-4.5 bg-gray-950/20">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            Tus Proyectos
+          </h2>
+          <span className="text-[10px] font-bold text-gray-400 bg-gray-800/50 px-2 py-0.5 rounded-full border border-gray-800">
+            {projects.length}
+          </span>
+        </div>
+      </div>
+
+      {/* Projects list */}
+      <nav className="flex-1 overflow-y-auto p-3.5 space-y-2">
+        {projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 px-4 text-center rounded-2xl border border-dashed border-gray-800 bg-gray-950/20">
+            <svg className="h-7 w-7 text-gray-600 mb-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <p className="text-xs text-gray-500 font-medium">
+              Escribí "hola" en el chat para crear tu primer proyecto.
+            </p>
+          </div>
+        ) : (
+          projects.map((p) => {
+            const isSelected = selected === p.slug
+            return (
+              <button
+                key={p.slug}
+                onClick={() => onSelect(p.slug)}
+                className={`group relative w-full flex items-center gap-3 rounded-xl px-3.5 py-3 text-left transition-all duration-300 border ${
+                  isSelected
+                    ? "bg-gradient-to-r from-emerald-600/15 to-teal-600/5 border-emerald-500/30 text-white shadow-[0_4px_16px_rgba(16,185,129,0.06)]"
+                    : "border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/40 hover:border-gray-800"
+                }`}
+              >
+                {/* Visual glow indicator */}
+                {isSelected && (
+                  <div className="absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                )}
+
+                {/* Folder icon */}
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-300 ${
+                  isSelected
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                    : "bg-gray-800/40 border-gray-800/60 text-gray-500 group-hover:text-gray-400 group-hover:bg-gray-800"
+                }`}>
+                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+
+                {/* Info project */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] font-bold truncate tracking-wide leading-tight">
+                    {p.name}
+                  </p>
+                  <p className="text-[10px] font-semibold text-gray-500 mt-0.5 flex items-center gap-1">
+                    <span>{p.docs ? p.docs.length : 0} archivos</span>
+                    <span>•</span>
+                    <span className="text-[9px] uppercase tracking-wider text-emerald-500/80 font-bold">Scrum</span>
+                  </p>
+                </div>
+              </button>
+            )
+          })
         )}
-        {projects.map((p) => (
-          <button
-            key={p.slug}
-            onClick={() => onSelect(p.slug)}
-            className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-              selected === p.slug
-                ? "bg-emerald-600/20 text-emerald-400"
-                : "text-gray-300 hover:bg-gray-800"
-            }`}
-          >
-            {p.name}
-          </button>
-        ))}
       </nav>
-      <div className="border-t border-gray-800 p-4">
+
+      {/* Footer controls */}
+      <div className="border-t border-gray-800/80 p-4.5 bg-gray-950/40 space-y-2">
         <a
           href="/docs/"
           target="_blank"
-          className="block rounded-lg bg-gray-800 px-3 py-2 text-center text-sm text-gray-300 transition-colors hover:bg-gray-700"
+          className="flex items-center justify-center gap-2 rounded-xl bg-gray-800/60 hover:bg-gray-800 border border-gray-800 px-4 py-2.5 text-center text-xs font-semibold text-gray-300 transition-all duration-300 hover:text-white"
         >
-          Ver docs
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+          </svg>
+          Explorar Entregables
         </a>
       </div>
     </aside>

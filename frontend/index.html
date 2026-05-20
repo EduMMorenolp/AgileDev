@@ -4,6 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AgileDev Suite</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Mermaid.js for gorgeous diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      // Initialize mermaid config
+      setTimeout(() => {
+        if (window.mermaid) {
+          window.mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+              background: '#0b0f19',
+              primaryColor: '#047857',
+              primaryTextColor: '#fff',
+              primaryBorderColor: '#059669',
+              lineColor: '#10b981',
+              secondaryColor: '#111827',
+              tertiaryColor: '#1f2937'
+            }
+          });
+        }
+      }, 500);
+    </script>
   </head>
   <body class="bg-gray-950 text-gray-100">
     <div id="root"></div>

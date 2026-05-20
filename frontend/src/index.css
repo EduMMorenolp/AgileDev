@@ -2,22 +2,196 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+@layer base {
+  body {
+    margin: 0;
+    background-color: #030712; /* gray-950 */
+    color: #f3f4f6; /* gray-100 */
+    font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+  }
 }
 
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Glassmorphism Helper Classes */
+.bg-glass {
+  background: rgba(17, 24, 39, 0.7); /* gray-900 with opacity */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.border-glass {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseBorder {
+  0%, 100% { border-color: rgba(16, 185, 129, 0.2); }
+  50% { border-color: rgba(16, 185, 129, 0.6); }
+}
+
+@keyframes radialMove {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pulse-border {
+  animation: pulseBorder 3s infinite ease-in-out;
+}
+
+.animate-radial-1 {
+  animation: radialMove 8s infinite ease-in-out;
+}
+
+/* Custom Prose System (Styling Markdown elements) */
+.custom-prose {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5rem;
+}
+
+.custom-prose h1,
+.custom-prose h2,
+.custom-prose h3,
+.custom-prose h4 {
+  color: #ffffff;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.custom-prose h1 { font-size: 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.25rem; }
+.custom-prose h2 { font-size: 1.1rem; }
+.custom-prose h3 { font-size: 1rem; }
+
+.custom-prose p {
+  margin-bottom: 0.75rem;
+  color: #d1d5db; /* gray-300 */
+}
+
+.custom-prose ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: #d1d5db;
+}
+
+.custom-prose ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: #d1d5db;
+}
+
+.custom-prose li {
+  margin-bottom: 0.25rem;
+}
+
+/* Custom Tables Styling */
+.custom-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-prose th,
+.custom-prose td {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-prose th {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.custom-prose tr:last-child td {
+  border-bottom: none;
+}
+
+.custom-prose tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Inline and Block Code */
+.custom-prose code {
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #34d399; /* emerald-400 */
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.custom-prose pre {
+  background-color: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.custom-prose pre code {
+  background-color: transparent;
+  color: #e5e7eb;
+  padding: 0;
+  font-size: 0.8rem;
 }
